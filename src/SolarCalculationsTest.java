@@ -8,26 +8,20 @@ public class SolarCalculationsTest {
 
         // format dates to the given pattern of am and pm
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a");
-        LocalDate localDate = LocalDate.of(2017, 1, 28);
-        SolarCalculations solarCalculations = new SolarCalculations(4,58.183,23.620,localDate);
+        LocalDate localDate = LocalDate.of(2018, 11, 1);
+        SolarCalculations solarCalculations = new SolarCalculations(1, 10.164324, 36.865384, localDate, "umm alqura".trim(), "not hanafi");
 
 //        //System.out.println(l.minusDays(1).getDayOfYear());
-       solarCalculations.calculateSolarValues();
-//      System.out.println(solarCalculations.getJdn());
-//        //System.out.println(solarCalculations.isLeapYear());
-//        System.out.println(solarCalculations.getJdn());
-//        System.out.println(solarCalculations.getJc());
-//        System.out.println(solarCalculations.getMa());
-//        System.out.println(solarCalculations.getOc());
-//       System.out.println(solarCalculations.toString());
-////
-////
-////
-////        System.out.println(solarCalculations.getJdn());
-////
 
-       System.out.println(formatter.format(solarCalculations.getSunRiseTime()));
-       System.out.println(formatter.format(solarCalculations.getSolarNoonTime()));
-       System.out.println(formatter.format(solarCalculations.getSunSetTime()));
+
+        System.out.println("Sun Rise: " + formatter.format(solarCalculations.getSunRiseTime()));
+        System.out.println("Solar Noon: " + formatter.format(solarCalculations.getSolarNoonTime()));
+        System.out.println("Sun Set: " + formatter.format(solarCalculations.getSunSetTime()));
+        System.out.println("Fajr: " + formatter.format(solarCalculations.getFajrTime()));
+        System.out.println("Dhuhur: " + formatter.format(solarCalculations.getDhuhurTime()));
+        System.out.println("Asr: " + formatter.format(solarCalculations.getAsrTime()));
+        System.out.println("Maghrib: " + formatter.format(solarCalculations.getMaghribTime()));
+        System.out.println("Isha: " + formatter.format(solarCalculations.getIshaTime()));
+        System.out.println("Mid Night: " + formatter.format(solarCalculations.getMidNight()));
     }
 }

@@ -5,11 +5,27 @@ import java.time.YearMonth;
 public class SolarCalculations {
 
     LocalDate localDate;
-    LocalTime sunRiseTime, sunSetTime, solarNoonTime, fajrTime, dhuhurTime, asrTime, maghribTime, ishaTime, midnightTime;
+    public static final double T_FAJR_OMANI = 18;
     private static final int JDN_FROM_2000 = 2451545;
     private static final int STARTING_YEAR = 2000;
     private double longitude;
     private double latitude;
+    public static final double T_ISHA_OMANI = 18;
+    public static final double T_FAJR_MUSLIM_WORLD = 18;
+    public static final double T_ISHA_MUSLIM_WORLD = 17;
+    public static final double T_FAJR_ISNA = 17.5;
+    public static final double T_ISHA_ISNA = 15;
+    public static final double T_FAJR_EGYPTIAN = 19.5;
+    public static final double T_ISHA_EGYPTION = 17.5;
+    public static final double T_FAJR_UMMALQURAH = 18.5;
+    public static final long MINUTES_ISHA_UMMALGURAH = 90;
+    public static final double T_FAJR_KARACHI = 18;
+    public static final double T_ISHA_KARACHI = 18;
+    public static final int HANAFI = 2;
+    public static final int NOT_HANAFI = 1;
+    LocalTime sunRiseTime, sunSetTime, solarNoonTime;
+    private String school;
+    private String asrSchool;
 
     // solar equations
     private double jdn;
@@ -29,8 +45,8 @@ public class SolarCalculations {
     private double et;
     private double ucl;
     private double ha;
-    private double son;
-    private double sur;
+    private double SolarNoon;
+    private double sunRise;
     private double sus;
     private int solarNoonH;
     private int solarNoonM;
@@ -39,43 +55,16 @@ public class SolarCalculations {
     private int sunSetH;
     private int sunSetM;
 
-    //prayer time instance variables
-    private int fajrTimeH;
-    private int dhuhurTimeH;
-    private int AsrTimeH;
-    private int maghribTimeH;
-    private int ishaTimeH;
-    private int fajrTimeM;
-    private int dhuhurTimeM;
-    private int AsrTimeM;
-    private int maghribTimeM;
-    private int ishaTimeM;
-
-
-    public SolarCalculations(int ucl, double longitude, double latitude, LocalDate date){
+    public SolarCalculations(int ucl, double longitude, double latitude, LocalDate date, String school, String asrSchool) {
         this.longitude = longitude;
         this.latitude = latitude;
         localDate = date;
+        this.school = school;
+        this.asrSchool = asrSchool;
         jdn = getJdn();
         this.ucl = ucl;
 
-
-    }
-
-    public double getLongitude() {
-        return longitude;
-    }
-
-    public double getLatitude() {
-        return latitude;
-    }
-
-    /**
-     *
-     */
-    public void calculateSolarValues(){
-
-        // solar calculations
+// solar calculations
         jc = (jdn - 2451545)/36525.0;
         ml = (280.46646 + jc * (36000.76983) + jc*0.0003032) % 360;
         ma = 357.52911 + jc*(35999.05029-0.0001537*jc);
@@ -95,16 +84,16 @@ public class SolarCalculations {
         //Calculate sun rise time hour angle
         ha = Math.toDegrees((Math.acos(-Math.sin(Math.toRadians(0.833))/(Math.cos(Math.toRadians(latitude)) * Math.cos(Math.toRadians(sd))) - Math.tan(Math.toRadians(latitude)) * Math.tan(Math.toRadians(sd)))));
 
-        son = (720 - 4*longitude - et + ucl * 60) / 60.0;
-        sur = son - ha / 15.0;
-        sus = son + ha / 15.0;
+        SolarNoon = (720 - 4 * longitude - et + ucl * 60) / 60.0;
+        sunRise = SolarNoon - ha / 15.0;
+        sus = SolarNoon + ha / 15.0;
 
-        solarNoonH = (int) Math.floor(son);
-        solarNoonM = (int) Math.round((son - solarNoonH) * 60);
+        solarNoonH = (int) Math.floor(SolarNoon);
+        solarNoonM = (int) Math.round((SolarNoon - solarNoonH) * 60);
         solarNoonTime = LocalTime.of(solarNoonH,solarNoonM);
 
-        sunRiseH = (int) Math.floor(sur);
-        sunRiseM = (int) Math.round((sur - sunRiseH) * 60);
+        sunRiseH = (int) Math.floor(sunRise);
+        sunRiseM = (int) Math.round((sunRise - sunRiseH) * 60);
         sunRiseTime = LocalTime.of(sunRiseH,sunRiseM);
 
         sunSetH = (int) Math.floor(sus);
@@ -112,12 +101,14 @@ public class SolarCalculations {
         sunSetTime = LocalTime.of(sunSetH,sunSetM);
     }
 
-    /**
-     * Calculate prayer times
-     */
-    public void calculatePrayerTimes(){
-
+    public double getLongitude() {
+        return longitude;
     }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
 
     /**
      * Calculate the julian date for the current date
@@ -211,11 +202,11 @@ public class SolarCalculations {
     }
 
     public double getSon() {
-        return son;
+        return SolarNoon;
     }
 
     public double getSur() {
-        return sur;
+        return sunRise;
     }
 
     public double getSus() {
@@ -232,6 +223,107 @@ public class SolarCalculations {
 
     public LocalTime getSolarNoonTime() {
         return solarNoonTime;
+    }
+
+    public LocalTime getDhuhurTime() {
+        return solarNoonTime.plusMinutes(5);
+    }
+
+    /**
+     * Calculates and returns Maghrib Time
+     *
+     * @return Maghrib Time
+     */
+    public LocalTime getMaghribTime() {
+        return sunSetTime.plusMinutes(5);
+    }
+
+    /**
+     * Calculates and returns Fajr Time depending on the islamic school
+     *
+     * @return Fajr Time
+     */
+    public LocalTime getFajrTime() {
+        double T = 0;
+        if (school.toLowerCase().equals("omani")) {
+            T = T_FAJR_OMANI;
+        } else if (school.toLowerCase().equals("muslim world league")) {
+            T = T_FAJR_MUSLIM_WORLD;
+        } else if (school.toLowerCase().equals("isna")) {
+            T = T_FAJR_ISNA;
+        } else if (school.toLowerCase().equals("egypt")) {
+            T = T_FAJR_EGYPTIAN;
+        } else if (school.toLowerCase().equals("umm alqura")) {
+            T = T_FAJR_UMMALQURAH;
+        } else if (school.toLowerCase().equals("karachi")) {
+            T = T_FAJR_KARACHI;
+        }
+
+        double ho = Math.toDegrees(Math.acos((-Math.sin(Math.toRadians(T))) / (Math.cos(Math.toRadians(latitude)) * Math.cos(Math.toRadians(sd))) - Math.tan(Math.toRadians(latitude)) * Math.tan(Math.toRadians(sd))));
+        double fajrTime = SolarNoon - ho / 15;
+        int fajrTimeH = (int) Math.floor(fajrTime);
+        int fajrTimeM = (int) Math.round((fajrTime - fajrTimeH) * 60);
+        return LocalTime.of(fajrTimeH, fajrTimeM);
+
+    }
+
+    /**
+     * Calculates and returns Isha Time depending on the islamic school
+     *
+     * @return Isha Time
+     */
+    public LocalTime getIshaTime() {
+        double T = 0;
+        if (!school.equals("umm alqura")) {
+            if (school.toLowerCase().equals("omani")) {
+                T = T_ISHA_OMANI;
+            } else if (school.toLowerCase().equals("muslim world league")) {
+                T = T_ISHA_MUSLIM_WORLD;
+            } else if (school.toLowerCase().equals("isna")) {
+                T = T_ISHA_ISNA;
+            } else if (school.toLowerCase().equals("egypt")) {
+                T = T_ISHA_EGYPTION;
+            } else if (school.toLowerCase().equals("karachi")) {
+                T = T_ISHA_KARACHI;
+            }
+            double ho = Math.toDegrees(Math.acos((-Math.sin(Math.toRadians(T))) / (Math.cos(Math.toRadians(latitude)) * Math.cos(Math.toRadians(sd))) - Math.tan(Math.toRadians(latitude)) * Math.tan(Math.toRadians(sd))));
+            double ishaTime = SolarNoon + ho / 15;
+            int ishaTimeH = (int) Math.floor(ishaTime);
+            int ishaTimeM = (int) Math.round((ishaTime - ishaTimeH) * 60);
+            return LocalTime.of(ishaTimeH, ishaTimeM);
+        } else {
+            return getMaghribTime().plusMinutes(MINUTES_ISHA_UMMALGURAH);
+        }
+
+    }
+
+    /**
+     * Calculates and returns Asr Time depending on the islamic school hanafi or else
+     *
+     * @return Asr Time
+     */
+    public LocalTime getAsrTime() {
+        double T = 0;
+        if (asrSchool.toLowerCase().equals("hanafi")) {
+            T = Math.toDegrees(Math.atan(1 / (HANAFI + Math.tan(Math.toRadians(latitude - sd)))));
+        } else {
+            T = Math.toDegrees(Math.atan(1 / (NOT_HANAFI + Math.tan(Math.toRadians(latitude - sd)))));
+        }
+
+        double ho = Math.toDegrees(Math.acos((Math.sin(Math.toRadians(T))) / (Math.cos(Math.toRadians(latitude)) * Math.cos(Math.toRadians(sd))) - Math.tan(Math.toRadians(latitude)) * Math.tan(Math.toRadians(sd))));
+        double asrTime = SolarNoon + ho / 15;
+        int asrTimeH = (int) Math.floor(asrTime);
+        System.out.print(asrTime);
+        System.out.print(asrTimeH);
+        int asrTimeM = (int) Math.round((asrTime - asrTimeH - 0.01) * 60);
+        return LocalTime.of(asrTimeH, asrTimeM).plusMinutes(5);
+    }
+
+    //للتحقق
+    public LocalTime getMidNight() {
+        int midH = getFajrTime().plusHours(sunSetTime.minusHours(getFajrTime().getHour() / 2).getHour()).getHour();
+        int midM = getFajrTime().plusMinutes(sunSetTime.minusMinutes(getFajrTime().getMinute() / 2).getMinute()).getMinute();
+        return LocalTime.of(midH, midM);
     }
 
     @Override
