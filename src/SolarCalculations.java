@@ -64,12 +64,10 @@ public class SolarCalculations {
         jdn = 2458430.5;
         this.ucl = ucl;
         compute();
-
-// solar calculations
-
     }
 
     private void compute() {
+        //solar calculations
         jc = (jdn - 2451545) / 36525.0;
         ml = (280.46646 + jc * (36000.76983) + jc * 0.0003032) % 360;
         ma = 357.52911 + jc * (35999.05029 - 0.0001537 * jc);
@@ -113,7 +111,6 @@ public class SolarCalculations {
     public double getLatitude() {
         return latitude;
     }
-
 
     /**
      * Calculate the julian date for the current date
@@ -166,7 +163,6 @@ public class SolarCalculations {
     }
 
     public double getSta() {
-
         return sta;
     }
 
@@ -236,7 +232,6 @@ public class SolarCalculations {
 
     /**
      * Calculates and returns Maghrib Time
-     *
      * @return Maghrib Time
      */
     public LocalTime getMaghribTime() {
@@ -249,6 +244,12 @@ public class SolarCalculations {
      * @return Fajr Time
      */
     public LocalTime getFajrTime() {
+        int fajrTimeH = (int) Math.floor(getFajtHour());
+        int fajrTimeM = (int) Math.round((getFajtHour() - fajrTimeH) * 60);
+        return LocalTime.of(fajrTimeH, fajrTimeM);
+    }
+
+    private double getFajtHour() {
         double T = 0;
         if (school.toLowerCase().equals("omani")) {
             T = T_FAJR_OMANI;
@@ -265,11 +266,8 @@ public class SolarCalculations {
         }
 
         double ho = Math.toDegrees(Math.acos((-Math.sin(Math.toRadians(T))) / (Math.cos(Math.toRadians(latitude)) * Math.cos(Math.toRadians(sd))) - Math.tan(Math.toRadians(latitude)) * Math.tan(Math.toRadians(sd))));
-        double fajrTime = SolarNoon - ho / 15;
-        int fajrTimeH = (int) Math.floor(fajrTime);
-        int fajrTimeM = (int) Math.round((fajrTime - fajrTimeH) * 60);
-        return LocalTime.of(fajrTimeH, fajrTimeM);
-
+        double fajrHour = SolarNoon - ho / 15;
+        return fajrHour;
     }
 
     /**
