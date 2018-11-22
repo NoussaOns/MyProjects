@@ -8,8 +8,8 @@ public class SolarCalculationsTest {
 
         // format dates to the given pattern of am and pm
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a");
-        LocalDate localDate = LocalDate.of(2018, 11, 1);
-        SolarCalculations solarCalculations = new SolarCalculations(1, 10.164324, 36.865384, localDate, "umm alqura".trim(), "not hanafi");
+        LocalDate localDate = LocalDate.of(2018, 11, 7);
+        SolarCalculations solarCalculations = new SolarCalculations(1, 22.933, 57.533, localDate, "omani".trim(), "not hanafi");
 
 //        //System.out.println(l.minusDays(1).getDayOfYear());
 
@@ -23,5 +23,7 @@ public class SolarCalculationsTest {
         System.out.println("Maghrib: " + formatter.format(solarCalculations.getMaghribTime()));
         System.out.println("Isha: " + formatter.format(solarCalculations.getIshaTime()));
         System.out.println("Mid Night: " + formatter.format(solarCalculations.getMidNight()));
+        System.out.println(solarCalculations);
+
     }
 }

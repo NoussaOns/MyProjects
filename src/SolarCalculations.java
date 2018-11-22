@@ -61,28 +61,33 @@ public class SolarCalculations {
         localDate = date;
         this.school = school;
         this.asrSchool = asrSchool;
-        jdn = getJdn();
+        jdn = 2458430.5;
         this.ucl = ucl;
+        compute();
 
 // solar calculations
-        jc = (jdn - 2451545)/36525.0;
-        ml = (280.46646 + jc * (36000.76983) + jc*0.0003032) % 360;
-        ma = 357.52911 + jc*(35999.05029-0.0001537*jc);
-        ee = 0.016708634- jc * (0.000042037+0.0000001267*jc);
-        c = Math.sin(Math.toRadians(ma))*(1.914602-jc*(0.004817+0.000014*jc)) + Math.sin(Math.toRadians(2*ma))*(0.019993 - 0.000101 * jc) + Math.sin(Math.toRadians(3*ma)) * 0.000289;
+
+    }
+
+    private void compute() {
+        jc = (jdn - 2451545) / 36525.0;
+        ml = (280.46646 + jc * (36000.76983) + jc * 0.0003032) % 360;
+        ma = 357.52911 + jc * (35999.05029 - 0.0001537 * jc);
+        ee = 0.016708634 - jc * (0.000042037 + 0.0000001267 * jc);
+        c = Math.sin(Math.toRadians(ma)) * (1.914602 - jc * (0.004817 + 0.000014 * jc)) + Math.sin(Math.toRadians(2 * ma)) * (0.019993 - 0.000101 * jc) + Math.sin(Math.toRadians(3 * ma)) * 0.000289;
         stl = ml + c;
         sta = ma + c;
-        srv = (1.000001018*(1-Math.pow(ee,2))/(1+ ee * Math.cos(Math.toRadians(sta))));
-        sal = stl - 0.00569-0.00478 * Math.sin(Math.toRadians(125.04-1934.136*jc));
-        mo = 23+(26+((21.448-jc*(46.815+jc*(0.00059- jc*0.001813))))/60)/60;
-        oc = mo +0.00256*Math.cos(Math.toRadians(125.04-1934.136*jc));
-        sd = Math.toDegrees(Math.asin(Math.sin(Math.toRadians(oc))*Math.sin(Math.toRadians(stl))));
-        v = Math.pow(Math.tan(Math.toRadians(oc/2)),2);
-        et = 4 * Math.toDegrees(v*Math.sin(Math.toRadians(2*ml)) - 2 * ee * Math.sin(Math.toRadians(ma)) + 4 * ee * v * Math.sin(Math.toRadians(ma))*Math.cos(Math.toRadians(2* ml)) - 0.5 * v * v * Math.sin(Math.toRadians(4 * ml)) - 1.25 * ee * ee * Math.sin(Math.toRadians(2*ma)));
+        srv = (1.000001018 * (1 - Math.pow(ee, 2)) / (1 + ee * Math.cos(Math.toRadians(sta))));
+        sal = stl - 0.00569 - 0.00478 * Math.sin(Math.toRadians(125.04 - 1934.136 * jc));
+        mo = 23 + (26 + ((21.448 - jc * (46.815 + jc * (0.00059 - jc * 0.001813)))) / 60) / 60;
+        oc = mo + 0.00256 * Math.cos(Math.toRadians(125.04 - 1934.136 * jc));
+        sd = Math.toDegrees(Math.asin(Math.sin(Math.toRadians(oc)) * Math.sin(Math.toRadians(stl))));
+        v = Math.pow(Math.tan(Math.toRadians(oc / 2)), 2);
+        et = 4 * Math.toDegrees(v * Math.sin(Math.toRadians(2 * ml)) - 2 * ee * Math.sin(Math.toRadians(ma)) + 4 * ee * v * Math.sin(Math.toRadians(ma)) * Math.cos(Math.toRadians(2 * ml)) - 0.5 * v * v * Math.sin(Math.toRadians(4 * ml)) - 1.25 * ee * ee * Math.sin(Math.toRadians(2 * ma)));
 
 
         //Calculate sun rise time hour angle
-        ha = Math.toDegrees((Math.acos(-Math.sin(Math.toRadians(0.833))/(Math.cos(Math.toRadians(latitude)) * Math.cos(Math.toRadians(sd))) - Math.tan(Math.toRadians(latitude)) * Math.tan(Math.toRadians(sd)))));
+        ha = Math.toDegrees((Math.acos(-Math.sin(Math.toRadians(0.833)) / (Math.cos(Math.toRadians(latitude)) * Math.cos(Math.toRadians(sd))) - Math.tan(Math.toRadians(latitude)) * Math.tan(Math.toRadians(sd)))));
 
         SolarNoon = (720 - 4 * longitude - et + ucl * 60) / 60.0;
         sunRise = SolarNoon - ha / 15.0;
@@ -90,15 +95,15 @@ public class SolarCalculations {
 
         solarNoonH = (int) Math.floor(SolarNoon);
         solarNoonM = (int) Math.round((SolarNoon - solarNoonH) * 60);
-        solarNoonTime = LocalTime.of(solarNoonH,solarNoonM);
+        solarNoonTime = LocalTime.of(solarNoonH, solarNoonM);
 
         sunRiseH = (int) Math.floor(sunRise);
         sunRiseM = (int) Math.round((sunRise - sunRiseH) * 60);
-        sunRiseTime = LocalTime.of(sunRiseH,sunRiseM);
+        sunRiseTime = LocalTime.of(sunRiseH, sunRiseM);
 
         sunSetH = (int) Math.floor(sus);
         sunSetM = (int) Math.round((sus - sunSetH) * 60);
-        sunSetTime = LocalTime.of(sunSetH,sunSetM);
+        sunSetTime = LocalTime.of(sunSetH, sunSetM);
     }
 
     public double getLongitude() {
@@ -120,7 +125,7 @@ public class SolarCalculations {
         //for each year greater than the year 2000 (defined in constants)
         for (int currentYear = localDate.getYear(); currentYear > STARTING_YEAR; currentYear--){
 
-            //if the current year is a leap year (Arbitrarly any day and month)
+            //if the current year is a leap year (Arbitrarily any day and month)
             if(LocalDate.of(currentYear,5,5).isLeapYear()){
                 jdn += 366;
             } else {
